@@ -1,0 +1,20 @@
+Power Apps CLI command reference
+https://learn.microsoft.com/en-us/power-apps/developer/code-apps/reference/cli
+
+Connect your code app to data
+https://learn.microsoft.com/en-us/power-apps/developer/code-apps/how-to/connect-to-data
+
+pa auth login
+npm install
+pa app init
+pa app run
+
+pa connection list 
+
+Connect SharePoint
+pa app add data-source `
+--connector "shared_sharepointonline" `
+--connection-id "aaaaaaaa000011112222bbbbbbbbbbbb" `
+--table "Travel%20Request" `
+--dataset "https://contoso.sharepoint.com/sites/TravelPolicies"
+
