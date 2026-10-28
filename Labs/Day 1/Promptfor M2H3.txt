@@ -1,0 +1,16 @@
+Create a SharePoint list named "Patient Tracker" with the following columns: in site https://jpower4mvp.sharepoint.com.mcas.ms/sites/CodeApp
+
+1. Title (Single Line of Text) - Patient ID (Example: PAT-0001)
+2. Patient Name (Single Line of Text)
+3. Gender (Choice: Male, Female, Other)
+4. Date of Birth (Date Only)
+5. Mobile Number (Single Line of Text)
+6. Email (Single Line of Text)
+7. Address (Multiple Lines of Text)
+8. Blood Group (Choice: A+, A-, B+, B-, AB+, AB-, O+, O-)
+9. Department (Single Line of Text)
+10. Doctor Assigned (Person or Group)
+11. Visit Type (Choice: New, Follow-up, Emergency, Consultation)
+12. Date (Date Only)
+13. Discharge Date (Date Only)
+14. Notes (Multiple Lines of Text)
