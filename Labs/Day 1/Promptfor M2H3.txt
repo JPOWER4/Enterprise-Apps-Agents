@@ -14,3 +14,335 @@ Create a SharePoint list named "Patient Tracker" with the following columns: in 
 12. Date (Date Only)
 13. Discharge Date (Date Only)
 14. Notes (Multiple Lines of Text)
+
+
+
+
+Then open App.css and replace the below styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.app-header {
+  margin-bottom: 2rem;
+}
+
+.app-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.app-subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* Cards grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Patient card */
+.patient-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.patient-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Card header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.patient-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.card-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.patient-email {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Card body */
+.card-body {
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 0.85rem;
+  color: #334155;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.clinical-notes {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.notes-text {
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Loading / error / empty states */
+.state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.state-message.error {
+  color: #dc2626;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+Then open App.tsx
+Replace below code
+import { useState, useEffect } from 'react'
+import { PatientTrackerService } from './generated/services/PatientTrackerService'
+import type { PatientTrackerRead } from './generated/models/PatientTrackerModel'
+import './App.css'
+
+function statusColor(status?: string): string {
+  switch (status?.toLowerCase()) {
+    case 'admitted': return '#2563eb'
+    case 'discharged': return '#16a34a'
+    case 'critical': return '#dc2626'
+    case 'observation': return '#d97706'
+    default: return '#6b7280'
+  }
+}
+
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return '—'
+  return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+function PatientCard({ patient }: { patient: PatientTrackerRead }) {
+  const status = patient.Visit_x0020_Type?.Value
+  const doctor = patient.Doctor_x0020_Assigned?.DisplayName
+
+  return (
+    <div className="patient-card">
+      <div className="card-header">
+        <div className="patient-avatar">{patient.Title?.charAt(0) ?? '?'}</div>
+        <div className="card-header-info">
+          <h3 className="patient-name">{patient.Title ?? 'Unknown Patient'}</h3>
+          <p className="patient-email">{patient.Email ?? '—'}</p>
+        </div>
+        {status && (
+          <span className="status-badge" style={{ backgroundColor: statusColor(status) }}>
+            {status}
+          </span>
+        )}
+      </div>
+
+      <div className="card-body">
+        <div className="info-row">
+          <span className="info-label">Date of Birth</span>
+          <span className="info-value">{formatDate(patient.Date_x0020_of_x0020_Birth)}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Gender</span>
+          <span className="info-value">{patient.Gender?.Value ?? '—'}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Assigned Doctor</span>
+          <span className="info-value">{doctor ?? '—'}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Primary Diagnosis</span>
+          <span className="info-value">{patient.Notes ?? '—'}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Admission Date</span>
+          <span className="info-value">{formatDate(patient.Date)}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Discharge Date</span>
+          <span className="info-value">{formatDate(patient.Discharge_x0020_Date)}</span>
+        </div>
+        {patient.Notes && (
+          <div className="clinical-notes">
+            <span className="info-label">Clinical Notes</span>
+            <p className="notes-text">{patient.Notes}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function App() {
+  const [patients, setPatients] = useState<PatientTrackerRead[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    PatientTrackerService.getAll()
+      .then((result) => {
+        setPatients(result.data ?? [])
+      })
+      .catch((err) => {
+        setError(err?.message ?? 'Failed to load patient data.')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
+
+  return (
+    <div className="app-container">
+      <header className="app-header">
+        <h1 className="app-title">Patient Tracker</h1>
+        <p className="app-subtitle">{!loading && !error ? `${patients.length} patient${patients.length !== 1 ? 's' : ''}` : ''}</p>
+      </header>
+
+      {loading && (
+        <div className="state-message">
+          <div className="spinner" />
+          <p>Loading patients...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="state-message error">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {!loading && !error && patients.length === 0 && (
+        <div className="state-message">
+          <p>No patients found.</p>
+        </div>
+      )}
+
+      {!loading && !error && patients.length > 0 && (
+        <div className="cards-grid">
+          {patients.map((patient) => (
+            <PatientCard key={patient.ID ?? patient['{Identifier}']} patient={patient} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default App
