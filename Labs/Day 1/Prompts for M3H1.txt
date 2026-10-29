@@ -1,0 +1,88 @@
+Please create two Data verse tables for an Internal Order system  where employees can order items like Laptops, Keyboards, headsets, Mouse from a company catalog
+
+Table 1: Catalog Items - Item Name, Category (Choice: Office Supplies, IT Equipment, Access & Security, Stationery, Other), Description, Available (Yes/No)
+
+Table 2: Internal Orders - Order ID, Item(Lookup to Catalog Items, required), Quantity, Order Date, Needed By (date), Delivery Location, Order Status (Choice: Submitted, Apporoved, In Progress, Ordered, Delivered, Denied), Notes
+
+Order ID - Primary Key
+
+npx degit GitHub:microsoft/PowerAppsCodeApps/Templates/vite OrderSupplySystem
+
+cd OrderSupplySystem
+code .
+
+New Terminal
+npm install
+
+pa app init
+ -enter environment
+ -display name
+
+pa app run
+
+npm run build
+pa app push --solution-id 2a72fbc0-36d3-f111-a05b-70a8a5990895
+
+pa app add data-source
+API ID: Dataverse
+Table Name : copy logical name
+
+
+Update the app using the connected dataverse data sources
+App requirements
+1.Layout
+-sidebar with two sections: 'Catalog' and 'My Orders'
+-Top header: 'Supply Hub' + Current user's display name
+-Modern Professional design, fully responsive
+2.Catalog Page (default landing)
+-fetch all catalog Items
+-responsive card grid
+-Filter bar: search by Item Name + filter by category
+'Order' button on each card (disabled when Available = No)-> opens order model
+3. Order model
+-pre-files the selected Catalog item(read-only display of Item Name)
+-Editable fields: Quantity (default 1); Needed by, Delivery location, Notes
+-On submit create a new order:
+-Item lookup --> Selected Catalog Item
+-Ordered By --> current user (from user table)
+-Order Date --> today
+-Order Status --> "Submitted"
+-Success toast + close model
+4.My Orders Page
+-Fetch Orders Page
+-Fetch Orders where Ordered by = current user
+-Table columns: Order Id, Item, Quantity, Order Date, Needed By, Status, Assigned To
+-Sort by Order Date descending
+-Status badge colors: Submitted = gray, Approved=blue, In Progress=yellow, Ordered=purple, Delivered=green, Denied=red
+
+
+Order Admin
+Order User
+
+Add security as add data-source
+
+Role-based Access control
+Check the current user's security roles via the user table's security roles association. Two roles are relevant:
+-"Order Admin" - full access
+-"Order User" - restricted to their own orders
+Branch the UI based on role:
+If user has "Order Admin" role:
+-Sidebar shows: catalog, My Orders, All Orders, Reports
+-"All Orders" Page: table of every Order across all users
+-Same columns as My Orders + "Ordered by" Column
+-Filters: by Status, by Assigned To, by Date range
+-Admin can edit Order Status and Assigned To inline (or via row action)
+-"Reports" page: simple dashboard with:
+-Total orders by Status (bar chart)
+-Orders by Category (pie chart)
+-Orders over time (line chart, last 30 days)
+-Top 5 most-ordered items
+-Admin can also create/edit/deactivate Catalog Items from the Catalog page (show "Manage" toggle)
+If user has "Order User" role (or only Order user);
+-Sidebar shows: Catalog, My Orders only
+-Catalog is read-only browsing + Ordering
+-My Orders shows only orders where Ordered By = current user
+-No access to All Orders or Reports routes (redirect to Catlog if attempted)
+If user has Neither role: 
+-Show a friendly "Access Denied - Please contact your administrator" screen
+
