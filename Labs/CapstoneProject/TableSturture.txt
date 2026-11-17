@@ -1,0 +1,102 @@
+Create a Dataverse data model for a Retail Banking Customer Service Management solution.
+
+Business Scenario: A retail bank's customers and branch staff handle loan enquiries, card block requests, dispute/complaint tickets, and KYC document follow\-ups through phone and email channels.
+
+Create the following Dataverse tables with relationships, lookups, and sample choice columns.
+
+Table 1: Customer Columns:
+
+- CustomerID (Auto Number, Primary Name)
+- CustomerNumber (Text)
+- FirstName (Text)
+- LastName (Text)
+- Email (Email)
+- MobileNumber (Phone)
+- NationalID (Text, Sensitive Data)
+- Address (Multiple Lines of Text)
+- DateOfBirth (Date Only)
+- KYCStatus (Choice: Pending, Verified, Expired)
+- PreferredContactMethod (Choice: Phone, Email)
+
+Table 2: RequestType Columns:
+
+- RequestTypeID (Auto Number)
+- RequestTypeName (Text)
+- Category (Choice: Service, Complaint, KYC)
+- RequiresApproval (Yes/No)
+- SLAHours (Whole Number)
+- Active (Yes/No)
+
+Insert sample request types:
+
+- Loan Enquiry
+- Card Block Request
+- Complaint Ticket
+- Dispute Request
+- KYC Follow\-up
+
+Table 3: ServiceRequest Columns:
+
+- ServiceRequestID (Auto Number)
+- RequestTitle (Text)
+- Customer (Lookup to Customer)
+- RequestType (Lookup to RequestType)
+- Description (Multiple Lines of Text)
+- Channel (Choice: Phone, Email)
+- Status (Choice: New, In Progress, Pending Approval, Resolved, Closed)
+- Priority (Choice: Low, Medium, High)
+- AssignedOfficer (User Lookup)
+- ApprovalStatus (Choice: Not Required, Pending, Approved, Rejected)
+- CreatedDate (Date and Time)
+- DueDate (Date and Time)
+- ClosedDate (Date and Time)
+- Notes (Multiple Lines of Text)
+
+Table 4: ApprovalLog Columns:
+
+- ApprovalLogID (Auto Number)
+- ServiceRequest (Lookup to ServiceRequest)
+- ApprovalStage (Choice: Initial Review, Manager Approval)
+- Action (Choice: Approved, Rejected)
+- Comments (Multiple Lines of Text)
+- ApprovedBy (User Lookup)
+- ApprovalDate (Date and Time)
+- PreviousStatus (Text)
+- NewStatus (Text)
+
+Relationships:
+
+- One Customer can have many Service Requests (1:N)
+- One Request Type can have many Service Requests (1:N)
+- One Service Request can have many Approval Logs (1:N)
+
+Security Requirements:
+
+1. Customer Role
+    - Can create, read, and update only their own Service Requests.
+    - Can read only their own Customer record.
+2. Officer Role
+    - Can view and update all Service Requests.
+    - Can view all Customer records.
+    - Cannot approve requests.
+3. Manager Role
+    - Can view all Service Requests.
+    - Can approve or reject requests.
+    - Can view Approval Logs.
+    - Can manage Request Types.
+
+Column Security:
+
+- Configure NationalID as a secured column.
+- Create a Column Security Profile.
+- Customers and Officers should see masked values only.
+- Managers should have full read access to NationalID.
+
+Business Process:
+
+- Requests marked as "Dispute Request" or "KYC Follow\-up" require Manager approval.
+- Approval actions should be stored in ApprovalLog.
+- Approval status should update the related ServiceRequest.
+
+Generate all tables, relationships, choice fields, lookup fields, and security recommendations following Dataverse best practices.
+
