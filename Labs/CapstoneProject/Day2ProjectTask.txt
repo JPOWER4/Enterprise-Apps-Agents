@@ -1,0 +1,14 @@
+1. Create a Agent
+ - update greeting topic
+ - Raise a request topic
+ - Check status topic
+ - escalate human
+
+2nd Agent upload documents and grounded knowledge
+ - add this agent under first agent as multi agent
+
+3. Add notifications while raise new request
+ - requested created - user
+ - new request received to officer
+ - if amount more than 50000 then send to Approver
+ 	- Add Activity log
